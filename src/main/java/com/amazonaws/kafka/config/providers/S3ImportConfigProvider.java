@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.kafka.config.providers.common.AwsServiceConfigProvider;
 
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
@@ -117,7 +118,7 @@ public class S3ImportConfigProvider extends AwsServiceConfigProvider {
             try {
                 Path pKey = Path.of(key);
                 Path destination = getDestination(this.localDir, pKey);
-                log.debug("Local destination for file: {}", destination);
+                log.info("Local destination for file: {}", destination);
                 
                 if (Files.exists(destination)) {
                     // Imported file may already exist on a file system. If tasks are restarting, 
@@ -131,7 +132,7 @@ public class S3ImportConfigProvider extends AwsServiceConfigProvider {
                         .key(getS3ObjectKey(pKey))
                         .build();
                 s3.getObject(s3GetObjectRequest, destination);
-                log.debug("Successfully imported a file from S3 bucket: s3://{}", key);
+                log.info("Successfully imported a file from S3 bucket: s3://{}", key);
                 data.put(key, destination.toString());
             } catch(NoSuchKeyException nske) {
                 // Simply throw an exception to indicate there are issues with the objects on S3
@@ -166,7 +167,7 @@ public class S3ImportConfigProvider extends AwsServiceConfigProvider {
     }
     
     protected S3Client checkOrInitS3Client(String regionStr) {
-        S3ClientBuilder s3cb = S3Client.builder();
+        S3ClientBuilder s3cb = S3Client.builder().httpClient(ApacheHttpClient.builder().build());
 
         setClientCommonConfig(s3cb);
         

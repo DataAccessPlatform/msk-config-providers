@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.kafka.config.providers.common.AwsServiceConfigProvider;
 
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.SsmClientBuilder;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
@@ -136,15 +137,16 @@ public class SsmParamStoreConfigProvider extends AwsServiceConfigProvider {
 				String value = parameterResponse.parameter().value();
 				data.put(keyWithOptions, value);
 			} catch(ParameterNotFoundException e) {
-				log.info("Parameter " + key + "not found. Value will be handled according to a strategy defined by 'NotFoundStrategy'");
+				log.warn("Parameter " + key + "not found. Value will be handled according to a strategy defined by 'NotFoundStrategy'");
 				handleNotFoundByStrategy(data, path, key, e);
 			}
+            log.warn("Parameter " + key + " retrieved successfully");
 		}
 		return ttl == null ? new ConfigData(data) : new ConfigData(data, ttl);
 	}
 
     protected SsmClient checkOrInitSsmClient() {
-        return cBuilder.build();
+        return cBuilder.httpClient(ApacheHttpClient.builder().build()).build();
     }
 	
 	@Override

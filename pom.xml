@@ -27,6 +27,11 @@
 			<artifactId>ssm</artifactId>
 			<version>${software.amazon.awssdk.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>apache-client</artifactId>
+			<version>${software.amazon.awssdk.version}</version>
+		</dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>secretsmanager</artifactId>
